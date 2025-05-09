@@ -1,4 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import ipRangeCheck from "ip-range-check";
+import { GITHUB_ACTIONS_IP_RANGE } from "./ips";
 
 /**
  * Lambda handler that always returns a successful response with fixed data
@@ -6,6 +8,31 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 export const handler = async (
   event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> => {
+  // Check source IP address
+  const sourceIp =
+    event.requestContext?.identity?.sourceIp ||
+    event.requestContext?.http?.sourceIp;
+
+  console.log(`Request from source IP: ${sourceIp}`);
+
+  // Validate IP is from GitHub
+  if (sourceIp) {
+    if (!ipRangeCheck(sourceIp, GITHUB_ACTIONS_IP_RANGE)) {
+      console.error(`Request from invalid IP: ${sourceIp}`);
+      return {
+        statusCode: 403,
+        body: JSON.stringify({
+          message: "Forbidden",
+          error: "Invalid IP address",
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      };
+    }
+  }
+
   console.log("Event received:", JSON.stringify(event, null, 2));
 
   // Fixed response data
