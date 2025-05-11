@@ -47,7 +47,7 @@
     "@octokit/webhooks": "^13.8.0",
     "aws-cdk-lib": "^2.1.0",
     "aws-lambda": "^1.0.7",
-    "cdk-nag": "^2.35.76",
+    "cdk-nag": "^2.35.95",
     "constructs": "^10.0.5",
     "ip-range-check": "^0.2.0"
   },
